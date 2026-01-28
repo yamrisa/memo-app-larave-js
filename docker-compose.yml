@@ -1,0 +1,25 @@
+version: "3.8"
+
+services:
+  app:
+    image: composer:2
+    container_name: memo_app
+    volumes:
+      - ./src:/app
+    working_dir: /app
+    ports:
+      - "8000:8000"
+    command: php artisan serve --host=0.0.0.0 --port=8000
+    depends_on:
+      - db
+
+  db:
+    image: mysql:8.0
+    container_name: memo_db
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: memo
+      MYSQL_USER: memo
+      MYSQL_PASSWORD: memo
+    ports:
+      - "3306:3306"
