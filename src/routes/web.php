@@ -7,3 +7,4 @@ Route::get('/', function () {
     return view('welcome');
 });
 Route::get('/memos', [MemoController::class, 'index']);
+Route::post('/memos', [MemoController::class, 'store']);
