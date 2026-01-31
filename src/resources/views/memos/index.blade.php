@@ -10,6 +10,7 @@
 
     <input type="text" id="memo-input">
     <button id="add-btn">追加</button>
+    <div id="message" style="margin: 10px 0;"></div>    {{--メッセージ表示エリアを作る--}}
 
     <ul id="memo-list">
         @foreach ($memos as $memo)
@@ -21,12 +22,22 @@
 </html>
 
 <script>
+    // メッセージ表示用関数（alert代替）
+    function showMessage(message, type = 'success') {
+        const messageDiv = document.getElementById('message');
+
+        messageDiv.textContent = message;
+        messageDiv.style.color = type === 'error' ? 'red' : 'green';
+    }
+
     document.getElementById('add-btn').addEventListener('click', () => {
-        const content = document.getElementById('memo-input').value;
+        const input = document.getElementById('memo-input');    //何度も使う要素だからinputを作る＆DOM取得は重めなので一回取得して使い回す
+        const content = input.value;
 
         // ①フロント：空 or スペースだけなら送らない-422-Unprocessable Entity
         if (!content.trim()) {
-            alert('メモを入力してください');
+            // alert('メモを入力してください');
+            showMessage('メモを入力してください', 'error');
             return;
         }
 
@@ -58,14 +69,18 @@
             const li = document.createElement('li');    //HTMLの <li> タグを新しく作る、DOMノードの作成
             li.textContent = data.content;  //<li> の中にメモ内容を書く、HTMLとして解釈されない、XSS対策的に安全
             document.getElementById('memo-list').appendChild(li);   //<ul id="memo-list"> の最後(appendChild)に追加する
-            document.getElementById('memo-input').value = '';   //フォーム状態のクリア
+            // document.getElementById('memo-input').value = '';   //フォーム状態のクリア
+            input.value = '';   //フォーム状態のクリア＆正常終了
+            showMessage('メモを追加しました');
         })
 
         .catch(error => {
             if (error.status === 422) { //①フロント：そもそも送らない
-                alert('入力内容を確認してください');
+                // alert('入力内容を確認してください');
+                showMessage('入力内容を確認してください', 'error');
             } else {
-                alert('システムエラーが発生しました');  //500-サーバ側のエラー
+                // alert('システムエラーが発生しました');  //500-サーバ側のエラー
+                showMessage('システムエラーが発生しました', 'error');
             }
         });
 
