@@ -15,11 +15,13 @@ class MemoController extends Controller
 
     public function store(Request $request)
     {
-        $memo = Memo::create([
-            'content' => $request->content,
+        $validated = $request->validate([   //②サーバ：バリデーション
+            'content' => 'required|string'
         ]);
-
-        return response()->json($memo);
+    
+        $memo = Memo::create($validated);
+    
+        return response()->json($memo, 200);
     }
 }
 
