@@ -21,7 +21,7 @@
 </body>
 </html>
 
-<script>
+{{-- <script>
     // メッセージ表示用関数（alert代替）
     function showMessage(message, type = 'success') {
         const messageDiv = document.getElementById('message');
@@ -84,5 +84,58 @@
             }
         });
 
+    });
+</script> --}}
+
+<script>
+    function showMessage(message, type = 'success') {
+        const messageDiv = document.getElementById('message');
+        messageDiv.textContent = message;
+        messageDiv.style.color = type === 'error' ? 'red' : 'green';
+    }
+
+    document.getElementById('add-btn').addEventListener('click', async () => {
+        const input = document.getElementById('memo-input');
+        const content = input.value;
+
+        if (!content.trim()) {
+            showMessage('メモを入力してください', 'error');
+            return;
+        }
+
+        try {
+            const response = await fetch('/memos', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                },
+                body: JSON.stringify({ content })
+            });
+
+            if (!response.ok) {
+                const error = await response.json();
+                throw {
+                    status: response.status,
+                    message: error.message
+                };
+            }
+
+            const data = await response.json();
+
+            const li = document.createElement('li');
+            li.textContent = data.content;
+            document.getElementById('memo-list').appendChild(li);
+
+            input.value = '';
+            showMessage('メモを追加しました');
+
+        } catch (error) {
+            if (error.status === 422) {
+                showMessage('入力内容を確認してください', 'error');
+            } else {
+                showMessage('システムエラーが発生しました', 'error');
+            }
+        }
     });
 </script>
